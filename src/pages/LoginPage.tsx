@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { login } from "../services/authService"
 import toast from "react-hot-toast"
 import axios from "axios"
@@ -22,7 +22,7 @@ const Login = () => {
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const { login: authenticate } = useAuth()
 
   const validateForm = (): boolean => {
@@ -46,6 +46,27 @@ const Login = () => {
     return Object.keys(newErrors).length === 0
   }
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //     e.preventDefault()
+  //     if (validateForm()) {
+  //         setIsLoading(true)
+  //         try {
+  //             const user = await login(formData)
+  //             toast.success(Welcome, ${user.name}!)
+  //             authenticate(user.accessToken)
+  //             navigate("/dashboard") // <-- or wherever you want to go after login
+  //         } catch (error) {
+  //             if (axios.isAxiosError(error)) {
+  //                 toast.error(error.message)
+  //             } else {
+  //                 toast.error("Something went wrong")
+  //             }
+  //         } finally {
+  //             setIsLoading(false)
+  //         }
+  //     }
+  // }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
@@ -53,8 +74,7 @@ const Login = () => {
       try {
         const user = await login(formData)
         toast.success(`Welcome, ${user.name}!`)
-        authenticate(user.accessToken)
-        navigate("/dashboard") // <-- or wherever you want to go after login
+        authenticate(user.accessToken) // ✅ Let AuthProvider handle navigation
       } catch (error) {
         if (axios.isAxiosError(error)) {
           toast.error(error.message)
@@ -66,6 +86,7 @@ const Login = () => {
       }
     }
   }
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -83,73 +104,73 @@ const Login = () => {
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
-      <div className='max-w-md w-full space-y-8'>
-        <div>
-          <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>Sign in to your account</h2>
-        </div>
-        <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
-          <div className='space-y-4'>
-            <div>
-              <label htmlFor='email' className='block text-sm font-medium text-gray-700'>
-                Email address
-              </label>
-              <input
-                id='email'
-                name='email'
-                type='email'
-                value={formData.email}
-                onChange={handleChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.email ? "border-red-300" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder='Enter your email'
-              />
-              {errors.email && <p className='mt-1 text-sm text-red-600'>{errors.email}</p>}
-            </div>
-            <div>
-              <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
-                Password
-              </label>
-              <input
-                id='password'
-                name='password'
-                type='password'
-                value={formData.password}
-                onChange={handleChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.password ? "border-red-300" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder='Enter your password'
-              />
-              {errors.password && <p className='mt-1 text-sm text-red-600'>{errors.password}</p>}
-            </div>
-          </div>
-
+      <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+        <div className='max-w-md w-full space-y-8'>
           <div>
-            <button
-              disabled={isLoading}
-              type='submit'
-              className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out'
-            >
-              {!isLoading ? "Sign in" : "Signing in..."}
-            </button>
+            <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>Sign in to your account</h2>
           </div>
+          <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
+            <div className='space-y-4'>
+              <div>
+                <label htmlFor='email' className='block text-sm font-medium text-gray-700'>
+                  Email address
+                </label>
+                <input
+                    id='email'
+                    name='email'
+                    type='email'
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
+                        errors.email ? "border-red-300" : "border-gray-300"
+                    } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                    placeholder='Enter your email'
+                />
+                {errors.email && <p className='mt-1 text-sm text-red-600'>{errors.email}</p>}
+              </div>
+              <div>
+                <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
+                  Password
+                </label>
+                <input
+                    id='password'
+                    name='password'
+                    type='password'
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
+                        errors.password ? "border-red-300" : "border-gray-300"
+                    } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                    placeholder='Enter your password'
+                />
+                {errors.password && <p className='mt-1 text-sm text-red-600'>{errors.password}</p>}
+              </div>
+            </div>
 
-          <div className='text-center'>
-            <p className='text-sm text-gray-600'>
-              Don't have an account?{" "}
-              <Link
-                to='/signup'
-                className='font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150'
+            <div>
+              <button
+                  disabled={isLoading}
+                  type='submit'
+                  className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out'
               >
-                Create new account
-              </Link>
-            </p>
-          </div>
-        </form>
+                {!isLoading ? "Sign in" : "Signing in..."}
+              </button>
+            </div>
+
+            <div className='text-center'>
+              <p className='text-sm text-gray-600'>
+                Don't have an account?{" "}
+                <Link
+                    to='/signup'
+                    className='font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150'
+                >
+                  Create new account
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
   )
 }
 

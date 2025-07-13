@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
 import apiClient, { setHeader } from "../services/apiClient"
 import router from "../router"
+import {jwtDecode} from "jwt-decode";
 
 interface AuthProviderProps {
     children: React.ReactNode
@@ -15,6 +16,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const login = (token: string) => {
         setIsLoggedIn(true)
         setAccessToken(token)
+
+        const decoded: { userId: string; role: string } = jwtDecode(token);
+
+        if (decoded.role === "reader") {
+            router.navigate("/readerDashboard");
+        } else if (decoded.role === "admin") {
+            router.navigate("/adminDashboard");
+        } else if (decoded.role === "librarian") {
+            router.navigate("/librarianDashboard");
+        } else {
+            router.navigate("/dashboard"); // fallback
+        }
     }
 
     const logout = () => setIsLoggedIn(false)
@@ -32,11 +45,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
                 const currentPath = window.location.pathname
                 if (currentPath === "/login" || currentPath === "/signup" || currentPath === "/") {
-                    console.log("currentPath", currentPath)
-                    router.navigate("/dashboard")
-                }
+                    const decoded: { userId: string; role: string } = jwtDecode(result.data.accessToken);
 
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    if (decoded.role === "reader") {
+                        router.navigate("/readerDashboard");
+                    } else if (decoded.role === "admin") {
+                        router.navigate("/adminDashboard");
+                    } else if (decoded.role === "librarian") {
+                        router.navigate("/librarianDashboard");
+                    } else {
+                        router.navigate("/dashboard");
+                    }
+                }
             } catch (error) {
                 setAccessToken("")
                 setIsLoggedIn(false)
