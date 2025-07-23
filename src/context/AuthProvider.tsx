@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
 import apiClient, { setHeader } from "../services/apiClient"
 import router from "../router"
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode"
 
 interface AuthProviderProps {
     children: React.ReactNode
@@ -16,21 +16,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const login = (token: string) => {
         setIsLoggedIn(true)
         setAccessToken(token)
+        setHeader(token)
 
-        const decoded: { userId: string; role: string } = jwtDecode(token);
+        const decoded: { userId: string; role: string } = jwtDecode(token)
 
-        if (decoded.role === "reader") {
-            router.navigate("/readerDashboard");
-        } else if (decoded.role === "admin") {
-            router.navigate("/adminDashboard");
-        } else if (decoded.role === "librarian") {
-            router.navigate("/librarianDashboard");
-        } else {
-            router.navigate("/dashboard"); // fallback
+        switch (decoded.role) {
+            case "reader":
+                router.navigate("/readerDashboard")
+                break
+            case "staff":
+                router.navigate("/adminDashboard")
+                break
+            case "librarian":
+                router.navigate("/librarianDashboard")
+                break
+            default:
+                router.navigate("/dashboard")
         }
     }
 
-    const logout = () => setIsLoggedIn(false)
+    const logout = () => {
+        setIsLoggedIn(false)
+        setAccessToken("")
+        setHeader("")
+        router.navigate("/login")
+    }
 
     useEffect(() => {
         setHeader(accessToken)
@@ -39,27 +49,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     useEffect(() => {
         const tryRefresh = async () => {
             try {
-                const result = await apiClient.post("/auth/refresh-token")
-                setAccessToken(result.data.accessToken)
+                const result = await apiClient.get("/auth/refresh-token")
+                const newToken = result.data.accessToken
+
+                setAccessToken(newToken)
                 setIsLoggedIn(true)
+                setHeader(newToken)
 
                 const currentPath = window.location.pathname
-                if (currentPath === "/login" || currentPath === "/signup" || currentPath === "/") {
-                    const decoded: { userId: string; role: string } = jwtDecode(result.data.accessToken);
+                if (["/login", "/signup", "/"].includes(currentPath)) {
+                    const decoded: { userId: string; role: string } = jwtDecode(newToken)
 
-                    if (decoded.role === "reader") {
-                        router.navigate("/readerDashboard");
-                    } else if (decoded.role === "admin") {
-                        router.navigate("/adminDashboard");
-                    } else if (decoded.role === "librarian") {
-                        router.navigate("/librarianDashboard");
-                    } else {
-                        router.navigate("/dashboard");
+                    switch (decoded.role) {
+                        case "reader":
+                            router.navigate("/readerDashboard")
+                            break
+                        case "staff":
+                            router.navigate("/adminDashboard")
+                            break
+                        case "librarian":
+                            router.navigate("/librarianDashboard")
+                            break
+                        default:
+                            router.navigate("/dashboard")
                     }
                 }
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
                 setAccessToken("")
                 setIsLoggedIn(false)
+                setHeader("")
             } finally {
                 setIsAuthenticating(false)
             }
@@ -68,5 +87,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         tryRefresh()
     }, [])
 
-    return <AuthContext.Provider value={{ isLoggedIn, login, logout, isAuthenticating }}>{children}</AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={{ isLoggedIn, login, logout, isAuthenticating }}>
+            {children}
+        </AuthContext.Provider>
+    )
 }

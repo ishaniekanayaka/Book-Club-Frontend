@@ -26,7 +26,7 @@ apiClient.interceptors.response.use(
         if (error.response.status === 403 && !originalRequest._retry) {
             originalRequest._retry = true
             try {
-                const result = await apiClient.post("/auth/refresh-token")
+                const result = await apiClient.get("/auth/refresh-token")
                 const newAccessToken = result.data.accessToken
                 setHeader(newAccessToken)
                 originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`
