@@ -7,10 +7,10 @@ const apiClient = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials: true, // cookies -> refresh token
+    withCredentials: true,
 })
 
-/// Authorization: "Bearer asdkjasldkja"
+
 export const setHeader = (accessToken: string) => {
     if (accessToken !== "") {
         apiClient.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
@@ -22,7 +22,7 @@ export const setHeader = (accessToken: string) => {
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const originalRequest = error.config // original request
+        const originalRequest = error.config
         if (error.response.status === 403 && !originalRequest._retry) {
             originalRequest._retry = true
             try {
