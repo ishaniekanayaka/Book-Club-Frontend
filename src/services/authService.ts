@@ -5,7 +5,7 @@ export interface SignUpResponse {
     _id: string
     name: string
     email: string
-    role: "admin" | "librarian" | "reader"
+    role: "staff" | "librarian"
     phone: string
     address: string
     dateOfBirth: string
@@ -20,7 +20,7 @@ export interface LoginResponse {
     _id: string
     name: string
     email: string
-    role: "admin" | "librarian" | "reader"
+    role: "staff" | "librarian"
     accessToken: string
 }
 

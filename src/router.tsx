@@ -5,8 +5,6 @@ import Signup from "./pages/SignUpPage"
 
 import AdminRoutes from "./pages/AdminRoutes"
 import LibrarianDashboard from "./pages/LibrarianDashboard.tsx";
-import ReaderDashboard from "./pages/ReadersDashboard.tsx";
-import AdminDashboard from "./pages/AdminDashboard.tsx";
 
 
 const router = createBrowserRouter([
@@ -20,11 +18,12 @@ const router = createBrowserRouter([
             {
                 element: <AdminRoutes />,
                 children: [
+                    { path: "/librarianDashboard", element: <LibrarianDashboard/>}
                     /*{ path: "/dashboard", element: <Dashboard /> },*/
-                    { path: "/librarianDashboard", element: <LibrarianDashboard/>},
+                   /* { path: "/librarianDashboard", element: <LibrarianDashboard/>},
                     { path: "/readerDashboard", element: <ReaderDashboard/>},
                     { path: "/adminDashboard", element: <AdminDashboard/>}
-
+*/
                 ],
             },
         ],
