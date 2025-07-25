@@ -52,26 +52,11 @@ export const logout = async (): Promise<LogoutResponse> => {
     return response.data
 }
 
-// ✅ Request OTP to reset password
-export const requestPasswordResetOTP = async (email: string): Promise<{ message: string }> => {
-    const response = await apiClient.post("/auth/request-reset-otp", { email })
-    return response.data
-}
+export const forgotPassword = (email: string) =>
+    apiClient.post("/auth/forgot-password", { email })
 
-// ✅ Verify OTP
-export const verifyOTP = async (
-    email: string,
-    otp: string
-): Promise<{ message: string }> => {
-    const response = await apiClient.post("/auth/verify-otp", { email, otp })
-    return response.data
-}
+export const verifyOtp = (email: string, otp: string) =>
+    apiClient.post("/auth/verify-otp", { email, otp })
 
-// ✅ Reset password using verified OTP
-export const resetPassword = async (
-    email: string,
-    newPassword: string
-): Promise<{ message: string }> => {
-    const response = await apiClient.post("/auth/reset-password", { email, newPassword })
-    return response.data
-}
+export const resetPassword = (email: string, newPassword: string) =>
+    apiClient.post("/auth/reset-password", { email, newPassword })
