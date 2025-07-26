@@ -1,44 +1,44 @@
-import React, { useState } from "react"
-import toast from "react-hot-toast"
-import apiClient from "../../services/apiClient.ts";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import apiClient from "../../services/apiClient";
 
-
-const LendBookForm: React.FC = () => {
-    const [memberId, setMemberId] = useState("")
-    const [nic, setNic] = useState("")
-    const [isbn, setIsbn] = useState("")
-    const [loading, setLoading] = useState(false)
+const LendBookForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+    const [memberId, setMemberId] = useState("");
+    const [nic, setNic] = useState("");
+    const [isbn, setIsbn] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
 
         if (!isbn.trim()) {
-            toast.error("Book ISBN is required")
-            return
+            toast.error("Book ISBN is required");
+            return;
         }
 
         if (!memberId.trim() && !nic.trim()) {
-            toast.error("Enter either Member ID or NIC")
-            return
+            toast.error("Enter either Member ID or NIC");
+            return;
         }
 
         try {
-            setLoading(true)
+            setLoading(true);
             await apiClient.post("/lending/lend", {
                 memberId: memberId.trim() || undefined,
                 nic: nic.trim() || undefined,
                 isbn: isbn.trim(),
             });
-            toast.success("Book lent successfully")
-            setMemberId("")
-            setNic("")
-            setIsbn("")
+            toast.success("Book lent successfully");
+            setMemberId("");
+            setNic("");
+            setIsbn("");
+            onSuccess(); // refresh list
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Failed to lend book")
+            toast.error(err.response?.data?.message || "Failed to lend book");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-lg">
@@ -50,8 +50,8 @@ const LendBookForm: React.FC = () => {
                         type="text"
                         value={memberId}
                         onChange={(e) => setMemberId(e.target.value)}
-                        placeholder="Optional if NIC is provided"
                         className="w-full px-4 py-2 border rounded-md"
+                        placeholder="Optional if NIC is given"
                     />
                 </div>
 
@@ -61,8 +61,8 @@ const LendBookForm: React.FC = () => {
                         type="text"
                         value={nic}
                         onChange={(e) => setNic(e.target.value)}
-                        placeholder="Optional if Member ID is provided"
                         className="w-full px-4 py-2 border rounded-md"
+                        placeholder="Optional if Member ID is given"
                     />
                 </div>
 
@@ -72,7 +72,6 @@ const LendBookForm: React.FC = () => {
                         type="text"
                         value={isbn}
                         onChange={(e) => setIsbn(e.target.value)}
-                        placeholder="Required"
                         className="w-full px-4 py-2 border rounded-md"
                         required
                     />
@@ -87,7 +86,7 @@ const LendBookForm: React.FC = () => {
                 </button>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default LendBookForm
+export default LendBookForm;

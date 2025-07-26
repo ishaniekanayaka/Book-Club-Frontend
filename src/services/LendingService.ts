@@ -7,7 +7,18 @@ export const lendBook = async (identifier: { nic?: string; memberId?: string }, 
     return res.data;
 };
 
+
 export const getAllLendings = async (): Promise<Lending[]> => {
     const res = await apiClient.get("/lending/all");
+    return res.data;
+};
+
+export const getOverdueLendings = async (): Promise<Lending[]> => {
+    const res = await apiClient.get("/lending/overdue");
+    return res.data.overdue;
+};
+
+export const returnBook = async (id: string): Promise<Lending> => {
+    const res = await apiClient.put(`/lending/return/${id}`);
     return res.data;
 };

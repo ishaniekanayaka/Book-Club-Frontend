@@ -1,20 +1,12 @@
-export type Reader = {
-    _id: string;
-    fullName: string;
-    email: string;
-};
+import type {Reader} from "./Reader.ts";
+import type {Book} from "./Book.ts";
 
-export type Book = {
-    _id: string;
-    title: string;
-    isbn?: string;
-};
 
 export type Lending = {
     _id: string;
-    readerId: Reader | string;  // can be populated object or string ID
-    bookId: Book | string;      // can be populated object or string ID
-    lendDate: string;           // ISO string (from Date)
+    readerId: Reader; // populated
+    bookId: Book;     // populated
+    lendDate: string;
     dueDate: string;
     returnDate?: string;
     isReturned: boolean;
@@ -26,5 +18,5 @@ export type Lending = {
 export type LendingFormData = {
     readerId: string;
     bookId: string;
-    dueDate?: string;           // optional: use backend default if omitted
+    dueDate?: string;
 };
