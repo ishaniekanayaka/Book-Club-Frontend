@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import type { Reader, ReaderFormData } from "../../types/Reader"
 
 type Props = {
@@ -8,14 +8,29 @@ type Props = {
 
 const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
     const [formData, setFormData] = useState<ReaderFormData>({
-        fullName: reader?.fullName || "",
-        nic: reader?.nic || "",
-        email: reader?.email || "",
-        phone: reader?.phone || "",
-        address: reader?.address || "",
-        dateOfBirth: reader?.dateOfBirth?.substring(0, 10) || "",
-        profileImage: undefined, // ✅ Use undefined instead of null
+        fullName: "",
+        nic: "",
+        email: "",
+        phone: "",
+        address: "",
+        dateOfBirth: "",
+        profileImage: undefined,
     })
+
+    // ✅ Populate form when editing
+    useEffect(() => {
+        if (reader) {
+            setFormData({
+                fullName: reader.fullName,
+                nic: reader.nic,
+                email: reader.email,
+                phone: reader.phone,
+                address: reader.address,
+                dateOfBirth: reader.dateOfBirth?.substring(0, 10) || "",
+                profileImage: undefined,
+            })
+        }
+    }, [reader])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -48,7 +63,9 @@ const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
             <textarea name="address" placeholder="Address" value={formData.address} onChange={handleChange} className="w-full p-2 border rounded" />
             <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} className="w-full p-2 border rounded" required />
             <input type="file" accept="image/*" onChange={handleImageChange} />
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                {reader ? "Update Reader" : "Add Reader"}
+            </button>
         </form>
     )
 }
