@@ -14,6 +14,7 @@ const BooksPage: React.FC = () => {
     const [isbnFilter, setIsbnFilter] = useState("")
     const [lendingBook, setLendingBook] = useState<Book | null>(null)
     const [nicInput, setNicInput] = useState("")
+    const [memberIdInput, setMemberIdInput] = useState("")
 
     const fetchBooks = async () => {
         try {
@@ -59,12 +60,23 @@ const BooksPage: React.FC = () => {
     }
 
     const handleLend = async () => {
-        if (!nicInput || !lendingBook) return toast.error("NIC is required.")
+        if (!nicInput.trim() && !memberIdInput.trim()) {
+            return toast.error("Please enter either NIC or Member ID")
+        }
+        if (!lendingBook) return
+
         try {
-            await lendBook(nicInput.trim(), lendingBook.isbn)
+            await lendBook(
+                {
+                    nic: nicInput.trim() || undefined,
+                    memberId: memberIdInput.trim() || undefined,
+                },
+                lendingBook.isbn
+            )
             toast.success("Book lent successfully.")
             setLendingBook(null)
             setNicInput("")
+            setMemberIdInput("")
             fetchBooks()
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Lending failed.")
@@ -110,18 +122,29 @@ const BooksPage: React.FC = () => {
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
                         <h2 className="text-lg font-bold mb-2">Lend "{lendingBook.title}"</h2>
+
                         <input
                             type="text"
                             placeholder="Enter Member NIC"
-                            className="w-full p-2 border rounded mb-4"
+                            className="w-full p-2 border rounded mb-2"
                             value={nicInput}
                             onChange={(e) => setNicInput(e.target.value)}
                         />
+                        <div className="text-center mb-2 font-semibold">OR</div>
+                        <input
+                            type="text"
+                            placeholder="Enter Member ID"
+                            className="w-full p-2 border rounded mb-4"
+                            value={memberIdInput}
+                            onChange={(e) => setMemberIdInput(e.target.value)}
+                        />
+
                         <div className="flex justify-end gap-2">
                             <button
                                 onClick={() => {
                                     setLendingBook(null)
                                     setNicInput("")
+                                    setMemberIdInput("")
                                 }}
                                 className="bg-gray-300 px-4 py-2 rounded"
                             >
