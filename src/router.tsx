@@ -2,11 +2,9 @@ import { createBrowserRouter } from "react-router-dom"
 import Layout from "./pages/Layout"
 import Login from "./pages/LoginPage"
 import Signup from "./pages/SignUpPage"
-
 import AdminRoutes from "./pages/AdminRoutes"
-import AdminDashboard from "./pages/AdminDashboard.tsx";
-
-
+import AdminDashboard from "./pages/AdminDashboard"
+import ReadersPage from "./pages/ReadersPage"
 
 const router = createBrowserRouter([
     {
@@ -19,7 +17,8 @@ const router = createBrowserRouter([
             {
                 element: <AdminRoutes />,
                 children: [
-                    { path: "/AdminDashboard", element: <AdminDashboard/>},
+                    { path: "/adminDashboard", element: <AdminDashboard /> },
+                    { path: "dashboard/readers", element: <ReadersPage /> }
 
                 ],
             },
