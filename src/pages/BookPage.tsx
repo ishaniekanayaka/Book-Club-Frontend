@@ -4,6 +4,7 @@ import type { Book } from "../types/Book"
 import { addBook, deleteBook, getAllBooks, updateBook } from "../services/BookService"
 import BookForm from "../components/forms/BookForm"
 import BookCard from "../components/card/BookCard"
+import { lendBook } from "../services/LendingService"
 
 const BooksPage: React.FC = () => {
     const [books, setBooks] = useState<Book[]>([])
@@ -11,6 +12,8 @@ const BooksPage: React.FC = () => {
     const [titleFilter, setTitleFilter] = useState("")
     const [genreFilter, setGenreFilter] = useState("")
     const [isbnFilter, setIsbnFilter] = useState("")
+    const [lendingBook, setLendingBook] = useState<Book | null>(null)
+    const [nicInput, setNicInput] = useState("")
 
     const fetchBooks = async () => {
         try {
@@ -27,7 +30,7 @@ const BooksPage: React.FC = () => {
 
     useEffect(() => {
         fetchBooks()
-    }, [titleFilter, genreFilter, isbnFilter]) // 🔁 Re-fetch when any filter changes
+    }, [titleFilter, genreFilter, isbnFilter])
 
     const handleSubmit = async (data: FormData) => {
         try {
@@ -52,6 +55,19 @@ const BooksPage: React.FC = () => {
             fetchBooks()
         } catch (err) {
             toast.error("Failed to delete book.")
+        }
+    }
+
+    const handleLend = async () => {
+        if (!nicInput || !lendingBook) return toast.error("NIC is required.")
+        try {
+            await lendBook(nicInput.trim(), lendingBook.isbn)
+            toast.success("Book lent successfully.")
+            setLendingBook(null)
+            setNicInput("")
+            fetchBooks()
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Lending failed.")
         }
     }
 
@@ -89,6 +105,39 @@ const BooksPage: React.FC = () => {
                 <BookForm book={editingBook!} onSubmit={handleSubmit} />
             </div>
 
+            {/* Lending Modal */}
+            {lendingBook && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+                        <h2 className="text-lg font-bold mb-2">Lend "{lendingBook.title}"</h2>
+                        <input
+                            type="text"
+                            placeholder="Enter Member NIC"
+                            className="w-full p-2 border rounded mb-4"
+                            value={nicInput}
+                            onChange={(e) => setNicInput(e.target.value)}
+                        />
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => {
+                                    setLendingBook(null)
+                                    setNicInput("")
+                                }}
+                                className="bg-gray-300 px-4 py-2 rounded"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleLend}
+                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                            >
+                                Lend
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {books.map((book) => (
@@ -97,6 +146,7 @@ const BooksPage: React.FC = () => {
                         book={book}
                         onEdit={setEditingBook}
                         onDelete={handleDelete}
+                        onClick={() => setLendingBook(book)}
                     />
                 ))}
             </div>

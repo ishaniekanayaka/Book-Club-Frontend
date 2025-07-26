@@ -5,11 +5,15 @@ type Props = {
     book: Book
     onEdit?: (book: Book) => void
     onDelete?: (id: string) => void
+    onClick?: () => void
 }
 
-const BookCard: React.FC<Props> = ({ book, onEdit, onDelete }) => {
+const BookCard: React.FC<Props> = ({ book, onEdit, onDelete, onClick }) => {
     return (
-        <div className="bg-white shadow rounded-xl p-4 w-full max-w-sm">
+        <div
+            className="bg-white shadow rounded-xl p-4 w-full max-w-sm cursor-pointer hover:shadow-md transition"
+            onClick={onClick}
+        >
             {book.backCover && (
                 <img
                     src={book.backCover}
@@ -29,7 +33,10 @@ const BookCard: React.FC<Props> = ({ book, onEdit, onDelete }) => {
             <div className="mt-4 flex gap-2">
                 {onEdit && (
                     <button
-                        onClick={() => onEdit(book)}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onEdit(book)
+                        }}
                         className="bg-blue-500 text-white px-3 py-1 rounded"
                     >
                         Edit
@@ -37,7 +44,10 @@ const BookCard: React.FC<Props> = ({ book, onEdit, onDelete }) => {
                 )}
                 {onDelete && (
                     <button
-                        onClick={() => onDelete(book._id)}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onDelete(book._id)
+                        }}
                         className="bg-red-500 text-white px-3 py-1 rounded"
                     >
                         Delete
