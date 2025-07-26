@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react"
 import toast from "react-hot-toast"
-
 import type { Book } from "../types/Book"
-import {addBook, deleteBook, getAllBooks, updateBook} from "../services/BookService"
-import BookForm from "../components/forms/BookForm.tsx";
-import BookCard from "../components/card/BookCard.tsx";
-
+import { addBook, deleteBook, getAllBooks, updateBook } from "../services/BookService"
+import BookForm from "../components/forms/BookForm"
+import BookCard from "../components/card/BookCard"
 
 const BooksPage: React.FC = () => {
     const [books, setBooks] = useState<Book[]>([])
     const [editingBook, setEditingBook] = useState<Book | null>(null)
+    const [titleFilter, setTitleFilter] = useState("")
+    const [genreFilter, setGenreFilter] = useState("")
+    const [isbnFilter, setIsbnFilter] = useState("")
 
     const fetchBooks = async () => {
         try {
-            const res = await getAllBooks()
+            const res = await getAllBooks({
+                title: titleFilter || undefined,
+                genre: genreFilter || undefined,
+                isbn: isbnFilter || undefined,
+            })
             setBooks(res)
         } catch (err) {
             toast.error("Failed to load books.")
@@ -22,7 +27,7 @@ const BooksPage: React.FC = () => {
 
     useEffect(() => {
         fetchBooks()
-    }, [])
+    }, [titleFilter, genreFilter, isbnFilter]) // 🔁 Re-fetch when any filter changes
 
     const handleSubmit = async (data: FormData) => {
         try {
@@ -54,12 +59,37 @@ const BooksPage: React.FC = () => {
         <div className="p-4">
             <h1 className="text-xl font-semibold mb-4">Books</h1>
 
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <input
+                    type="text"
+                    placeholder="Search by Title"
+                    className="border p-2 rounded"
+                    value={titleFilter}
+                    onChange={(e) => setTitleFilter(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Search by Genre"
+                    className="border p-2 rounded"
+                    value={genreFilter}
+                    onChange={(e) => setGenreFilter(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Search by ISBN"
+                    className="border p-2 rounded"
+                    value={isbnFilter}
+                    onChange={(e) => setIsbnFilter(e.target.value)}
+                />
+            </div>
+
             {/* Form */}
             <div className="mb-8">
                 <BookForm book={editingBook!} onSubmit={handleSubmit} />
             </div>
 
-            {/* Cards Grid */}
+            {/* Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {books.map((book) => (
                     <BookCard

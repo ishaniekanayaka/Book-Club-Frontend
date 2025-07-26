@@ -2,10 +2,10 @@ import type { Book } from "../types/Book"
 import apiClient from "./apiClient"
 
 // ✅ Get all non-deleted books
-export const getAllBooks = async (): Promise<Book[]> => {
+/*export const getAllBooks = async (): Promise<Book[]> => {
     const response = await apiClient.get("/book")
     return response.data
-}
+}*/
 
 // ✅ Add a new book
 export const addBook = async (formData: FormData): Promise<Book> => {
@@ -38,4 +38,11 @@ export const getBookById = async (id: string): Promise<Book> => {
 export const getGenres = async (): Promise<string[]> => {
     const response = await apiClient.get("/book/genres/list")
     return response.data.genres
+}
+
+export const getAllBooks = async (filters?: { title?: string; genre?: string; isbn?: string }): Promise<Book[]> => {
+    const response = await apiClient.get("/book", {
+        params: filters,
+    })
+    return response.data
 }
