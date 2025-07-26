@@ -5,6 +5,7 @@ import Signup from "./pages/SignUpPage"
 import AdminRoutes from "./pages/AdminRoutes"
 import AdminDashboard from "./pages/AdminDashboard"
 import ReadersPage from "./pages/ReadersPage"
+import BookPage from "./pages/BookPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -18,7 +19,8 @@ const router = createBrowserRouter([
                 element: <AdminRoutes />,
                 children: [
                     { path: "/adminDashboard", element: <AdminDashboard /> },
-                    { path: "dashboard/readers", element: <ReadersPage /> }
+                    { path: "dashboard/readers", element: <ReadersPage /> },
+                    { path: "dashboard/books", element: <BookPage /> }
 
                 ],
             },

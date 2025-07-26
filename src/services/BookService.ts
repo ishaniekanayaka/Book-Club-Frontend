@@ -1,11 +1,41 @@
-import axios from "axios";
-import type {Book} from "../types/Book.ts";
+import type { Book } from "../types/Book"
+import apiClient from "./apiClient"
 
+// ✅ Get all non-deleted books
+export const getAllBooks = async (): Promise<Book[]> => {
+    const response = await apiClient.get("/book")
+    return response.data
+}
 
-const BASE_URL = "/api/books";
+// ✅ Add a new book
+export const addBook = async (formData: FormData): Promise<Book> => {
+    const response = await apiClient.post("/book", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    })
+    return response.data.book
+}
 
-export const getAllBooks = () => axios.get<Book[]>(BASE_URL);
-export const createBook = (data: FormData) => axios.post(BASE_URL, data);
-export const updateBook = (id: string, data: FormData) => axios.put(`${BASE_URL}/${id}`, data);
-export const deleteBook = (id: string) => axios.delete(`${BASE_URL}/${id}`);
-export const getGenres = () => axios.get<string[]>(`${BASE_URL}/genres/list`);
+// ✅ Update an existing book
+export const updateBook = async (id: string, formData: FormData): Promise<Book> => {
+    const response = await apiClient.put(`/book/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    })
+    return response.data.updated
+}
+
+// ✅ Soft delete a book
+export const deleteBook = async (id: string): Promise<void> => {
+    await apiClient.delete(`/book/${id}`)
+}
+
+// ✅ Get a single book by ID
+export const getBookById = async (id: string): Promise<Book> => {
+    const response = await apiClient.get(`/book/${id}`)
+    return response.data
+}
+
+// ✅ Get list of genres (for dropdowns, filters)
+export const getGenres = async (): Promise<string[]> => {
+    const response = await apiClient.get("/book/genres/list")
+    return response.data.genres
+}
