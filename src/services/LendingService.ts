@@ -22,3 +22,8 @@ export const returnBook = async (id: string): Promise<Lending> => {
     const res = await apiClient.put(`/lending/return/${id}`);
     return res.data;
 };
+
+export const getReturnedOverdueLendings = async () => {
+    const res = await apiClient.get("/lending/returned");
+    return res.data;
+};

@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/AdminDashboard"
 import ReadersPage from "./pages/ReadersPage"
 import BookPage from "./pages/BookPage.tsx";
 import LendingPage from "./pages/LendingPage.tsx";
+import OverduePage from "./pages/OverduePage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -22,7 +23,8 @@ const router = createBrowserRouter([
                     { path: "/adminDashboard", element: <AdminDashboard /> },
                     { path: "dashboard/readers", element: <ReadersPage /> },
                     { path: "dashboard/books", element: <BookPage /> },
-                    { path: "dashboard/lending", element: <LendingPage /> }
+                    { path: "dashboard/lending", element: <LendingPage /> },
+                    {path: "dashboard/overdue", element: <OverduePage/>}
 
                 ],
             },
