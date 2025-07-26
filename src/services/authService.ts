@@ -52,11 +52,24 @@ export const logout = async (): Promise<LogoutResponse> => {
     return response.data
 }
 
-export const forgotPassword = (email: string) =>
-    apiClient.post("/auth/forgot-password", { email })
+// ✅ Forgot Password - Send OTP
+export const forgotPassword = async (email: string) => {
+    const response = await apiClient.post("/auth/forgot-password", { email })
+    return response.data
+}
 
-export const verifyOtp = (email: string, otp: string) =>
-    apiClient.post("/auth/verify-otp", { email, otp })
+// ✅ Verify OTP
+export const verifyOtp = async (email: string, otp: string) => {
+    const response = await apiClient.post("/auth/verify-otp", { email, otp })
+    return response.data
+}
 
-export const resetPassword = (email: string, newPassword: string) =>
-    apiClient.post("/auth/reset-password", { email, newPassword })
+// ✅ Reset Password - Now includes OTP parameter
+export const resetPassword = async (email: string, otp: string, newPassword: string) => {
+    const response = await apiClient.post("/auth/reset-password", {
+        email,
+        otp,
+        newPassword
+    })
+    return response.data
+}

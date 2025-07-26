@@ -1,73 +1,94 @@
-import React, { useState, type JSX } from "react"
-import { MdDashboard, MdPeople, MdInventory, MdShoppingCart } from "react-icons/md"
-import { useNavigate } from "react-router-dom"
+import React from 'react';
+import {
+    Users,
+    BookOpen,
+    FileText,
+    AlertTriangle,
+    Mail,
+    Settings,
+    LogOut,
+    TrendingUp
+} from 'lucide-react';
 
-interface SidebarItem {
-    id: string
-    label: string
-    icon: JSX.Element
+interface SidebarProps {
+    activeSection: string;
+    onSectionChange: (section: string) => void;
 }
 
-const Sidebar: React.FC = () => {
-    const [activeItem, setActiveItem] = useState<string>("dashboard")
-    const navigate = useNavigate()
+const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => {
+    const menuItems = [
+        { id: 'overview', label: 'Overview', icon: TrendingUp },
+        { id: 'readers', label: 'Reader Management', icon: Users },
+        { id: 'books', label: 'Book Management', icon: BookOpen },
+        { id: 'lending', label: 'Lending Management', icon: FileText },
+        { id: 'overdue', label: 'Overdue Management', icon: AlertTriangle },
+        { id: 'notifications', label: 'Notifications', icon: Mail },
+        { id: 'settings', label: 'Settings', icon: Settings }
+    ];
 
-    const handleItemClick = (itemId: string) => {
-        setActiveItem(itemId)
-        if (itemId === "dashboard") navigate(`/dashboard`)
-        else navigate(`/dashboard/${itemId}`)
-    }
-
-    const sidebarItems: SidebarItem[] = [
-        {
-            id: "dashboard",
-            label: "Dashboard",
-            icon: <MdDashboard className='w-5 h-5' />,
-        },
-        {
-            id: "courses",
-            label: "Courses",
-            icon: <MdPeople className='w-5 h-5' />,
-        },
-        {
-            id: "enrollments",
-            label: "Enrollments",
-            icon: <MdInventory className='w-5 h-5' />,
-        },
-        {
-            id: "payments",
-            label: "Payments",
-            icon: <MdShoppingCart className='w-5 h-5' />,
-        },
-    ]
+    const handleLogout = () => {
+        // Logout functionality will be implemented here
+        console.log('Logout clicked');
+        alert('Logout functionality will be implemented with JWT');
+    };
 
     return (
-        <div className='bg-gray-900 text-white w-64 min-h-screen p-4'>
-            <div className='mb-8'>
-                <h1 className='text-2xl font-bold text-center py-4'>Admin Panel</h1>
+        <div className="w-64 bg-white shadow-xl min-h-screen flex flex-col">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-200">
+                <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    📚 Book Club Library
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">Management System</p>
+                <div className="mt-3 text-xs text-gray-500">
+                    Librarian Dashboard
+                </div>
             </div>
 
-            <nav>
-                <ul className='space-y-2'>
-                    {sidebarItems.map((item) => (
-                        <li key={item.id}>
-                            <button
-                                onClick={() => handleItemClick(item.id)}
-                                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 text-left ${
-                                    activeItem === item.id
-                                        ? "bg-indigo-600 text-white"
-                                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                                }`}
-                            >
-                                <span className='flex-shrink-0'>{item.icon}</span>
-                                <span className='font-medium'>{item.label}</span>
-                            </button>
-                        </li>
-                    ))}
+            {/* Navigation Menu */}
+            <nav className="p-4 flex-1">
+                <ul className="space-y-2">
+                    {menuItems.map((item) => {
+                        const IconComponent = item.icon;
+                        return (
+                            <li key={item.id}>
+                                <button
+                                    onClick={() => onSectionChange(item.id)}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 hover:scale-105 ${
+                                        activeSection === item.id
+                                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-105'
+                                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600'
+                                    }`}
+                                >
+                                    <IconComponent className="h-5 w-5" />
+                                    <span className="font-medium">{item.label}</span>
+                                    {activeSection === item.id && (
+                                        <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+                                    )}
+                                </button>
+                            </li>
+                        );
+                    })}
                 </ul>
             </nav>
-        </div>
-    )
-}
 
-export default Sidebar
+            {/* User Info & Logout */}
+            <div className="p-4 border-t border-gray-200">
+                <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="text-sm font-medium text-gray-800">Welcome Back!</div>
+                    <div className="text-xs text-gray-600">Library Administrator</div>
+                </div>
+
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-200 hover:scale-105"
+                >
+                    <LogOut className="h-5 w-5" />
+                    <span className="font-medium">Logout</span>
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default Sidebar;
