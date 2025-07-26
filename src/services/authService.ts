@@ -73,3 +73,9 @@ export const resetPassword = async (email: string, otp: string, newPassword: str
     })
     return response.data
 }
+
+
+export const getLoggedInUser = async (): Promise<User> => {
+    const response = await apiClient.get("/auth/me")
+    return response.data
+}

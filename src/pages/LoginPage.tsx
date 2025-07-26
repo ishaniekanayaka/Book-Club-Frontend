@@ -55,7 +55,7 @@ const Login = () => {
         const user = await login(formData)
         toast.success(`Welcome, ${user.name}!`)
         authenticate(user.accessToken)
-        navigate("/AdminDashboard")
+        navigate("/adminDashboard")
       } catch (error) {
         if (axios.isAxiosError(error)) {
           toast.error(error.response?.data?.message || error.message)

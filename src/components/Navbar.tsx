@@ -9,12 +9,9 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(false)
-    const { isLoggedIn, logout: unauthenticate } = useAuth()
+    const { isLoggedIn, logout: unauthenticate, user } = useAuth()
 
-    const handleLogin = () => {
-        navigate("/login")
-    }
-
+    const handleLogin = () => navigate("/login")
     const handleLogout = async () => {
         setIsLoading(true)
         try {
@@ -33,37 +30,36 @@ const Navbar = () => {
         }
     }
 
-    const handleDashboard = () => {
-        navigate("/dashboard")
-    }
-
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen)
-    }
+    const handleDashboard = () => navigate("/dashboard")
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
     return (
         <nav className='bg-white shadow-md border-b border-gray-200'>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='flex justify-between items-center h-16'>
-                    {/* Logo Section */}
-                    <div className='flex items-center'>
-                        <div className='flex-shrink-0'>
-                            <h1 className='text-2xl font-bold text-blue-700'>📚 Book Club</h1>
-                        </div>
+
+                    {/* Logo Section with user image */}
+                    <div className='flex items-center space-x-3'>
+                        {user?.profileImage && (
+                            <img
+                                src={user.profileImage}
+                                alt="Profile"
+                                className="h-10 w-10 rounded-full object-cover border-2 border-blue-600"
+                            />
+                        )}
+                        <h1 className='text-2xl font-bold text-blue-700'>📚 Book Club</h1>
                     </div>
 
                     {/* Desktop Navigation */}
                     <div className='hidden md:flex items-center space-x-4'>
-                        {!isLoggedIn && (
+                        {!isLoggedIn ? (
                             <button
                                 onClick={handleLogin}
                                 className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                             >
                                 Login
                             </button>
-                        )}
-
-                        {isLoggedIn && (
+                        ) : (
                             <>
                                 <button
                                     onClick={handleDashboard}
@@ -98,16 +94,14 @@ const Navbar = () => {
                 {isMenuOpen && (
                     <div className='md:hidden'>
                         <div className='px-2 pt-2 pb-3 space-y-1 border-t border-gray-200'>
-                            {!isLoggedIn && (
+                            {!isLoggedIn ? (
                                 <button
                                     onClick={handleLogin}
                                     className='block w-full text-left bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium'
                                 >
                                     Login
                                 </button>
-                            )}
-
-                            {isLoggedIn && (
+                            ) : (
                                 <>
                                     <button
                                         onClick={handleDashboard}

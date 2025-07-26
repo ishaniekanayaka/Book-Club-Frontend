@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
 import apiClient, { setHeader } from "../services/apiClient"
 import router from "../router"
-import { jwtDecode } from "jwt-decode"
+import { getLoggedInUser } from "../services/authService"
+import type { User } from "../types/User"
 
 interface AuthProviderProps {
     children: React.ReactNode
@@ -12,26 +13,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
     const [accessToken, setAccessToken] = useState<string>("")
     const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true)
+    const [user, setUser] = useState<User | null>(null)
 
-    const login = (token: string) => {
+    const login = async (token: string) => {
         setIsLoggedIn(true)
         setAccessToken(token)
         setHeader(token)
 
-        const decoded: { userId: string; role: string } = jwtDecode(token)
-
-        switch (decoded.role) {
-            case "reader":
-                router.navigate("/readerDashboard")
-                break
-            case "staff":
-                router.navigate("/adminDashboard")
-                break
-            case "librarian":
-                router.navigate("/librarianDashboard")
-                break
-            default:
-                router.navigate("/dashboard")
+        try {
+            const userData = await getLoggedInUser()
+            setUser(userData)
+            router.navigate("/adminDashboard")
+        } catch (err) {
+            console.error("Failed to fetch user data on login")
         }
     }
 
@@ -39,6 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoggedIn(false)
         setAccessToken("")
         setHeader("")
+        setUser(null)
         router.navigate("/login")
     }
 
@@ -49,35 +44,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     useEffect(() => {
         const tryRefresh = async () => {
             try {
-                const result = await apiClient.get("/auth/refresh-token")
+                const result = await apiClient.post("/auth/refresh-token")
                 const newToken = result.data.accessToken
-
                 setAccessToken(newToken)
                 setIsLoggedIn(true)
                 setHeader(newToken)
 
+                const userData = await getLoggedInUser()
+                setUser(userData)
+
                 const currentPath = window.location.pathname
                 if (["/login", "/signup", "/"].includes(currentPath)) {
-                    const decoded: { userId: string; role: string } = jwtDecode(newToken)
-
-                    switch (decoded.role) {
-                        case "reader":
-                            router.navigate("/readerDashboard")
-                            break
-                        case "staff":
-                            router.navigate("/adminDashboard")
-                            break
-                        case "librarian":
-                            router.navigate("/librarianDashboard")
-                            break
-                        default:
-                            router.navigate("/dashboard")
-                    }
+                    router.navigate("/adminDashboard")
                 }
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
                 setAccessToken("")
                 setIsLoggedIn(false)
+                setUser(null)
                 setHeader("")
             } finally {
                 setIsAuthenticating(false)
@@ -88,7 +71,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, login, logout, isAuthenticating }}>
+        <AuthContext.Provider
+            value={{
+                isLoggedIn,
+                login,
+                logout,
+                isAuthenticating,
+                user,
+                setUser,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     )

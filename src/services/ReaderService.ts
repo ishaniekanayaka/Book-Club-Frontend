@@ -38,3 +38,12 @@ export const getReaderLogs = async (id: string): Promise<{
     const response = await apiClient.get(`/reader/${id}/logs`)
     return response.data
 }
+
+export const searchReader = async (query: string): Promise<Reader | null> => {
+    try {
+        const response = await apiClient.get(`/reader/search/${query}`)
+        return response.data
+    } catch (err) {
+        return null
+    }
+}
