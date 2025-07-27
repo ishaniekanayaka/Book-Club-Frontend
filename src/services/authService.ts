@@ -79,3 +79,20 @@ export const getLoggedInUser = async (): Promise<User> => {
     const response = await apiClient.get("/auth/me")
     return response.data
 }
+
+
+export const updateUserProfile = async (userId: string, data: any): Promise<User> => {
+    const formData = new FormData()
+    formData.append("name", data.name)
+    formData.append("phone", data.phone)
+    formData.append("address", data.address)
+    formData.append("dateOfBirth", data.dateOfBirth)
+    if (data.profileImage) {
+        formData.append("profileImage", data.profileImage)
+    }
+
+    const res = await apiClient.put(`/auth/update/${userId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    })
+    return res.data.user
+}
