@@ -29,12 +29,14 @@ const Sidebar: React.FC = () => {
         { id: "overview", label: "Overview", icon: TrendingUp },
         { id: "readers", label: "Reader Management", icon: Users },
         { id: "books", label: "Book Management", icon: BookOpen },
+
         { id: "lending", label: "Lending Management", icon: FileText },
         { id: "overdue", label: "Overdue Management", icon: AlertTriangle },
         ...(user?.role === "librarian"
             ? [{ id: "staff", label: "Staff Management", icon: Users }]
             : []),
         { id: "settings", label: "Settings", icon: Settings },
+        { id: "logs", label: "Logs", icon: FileText },
     ];
 
     // Determine active section from URL
