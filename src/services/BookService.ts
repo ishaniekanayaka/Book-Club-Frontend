@@ -34,11 +34,11 @@ export const getBookById = async (id: string): Promise<Book> => {
     return response.data
 }
 
-// ✅ Get list of genres (for dropdowns, filters)
 export const getGenres = async (): Promise<string[]> => {
     const response = await apiClient.get("/book/genres/list")
-    return response.data.genres
+    return response.data.genres // 🛠️ fixed response to return .genres specifically
 }
+
 
 export const getAllBooks = async (filters?: { title?: string; genre?: string; isbn?: string }): Promise<Book[]> => {
     const response = await apiClient.get("/book", {
@@ -46,3 +46,4 @@ export const getAllBooks = async (filters?: { title?: string; genre?: string; is
     })
     return response.data
 }
+

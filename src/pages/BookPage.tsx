@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from "react"
-import toast from "react-hot-toast"
-import type { Book } from "../types/Book"
-import { addBook, deleteBook, getAllBooks, updateBook } from "../services/BookService"
-import BookForm from "../components/forms/BookForm"
-import BookCard from "../components/card/BookCard"
-import { lendBook } from "../services/LendingService"
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import type { Book } from "../types/Book";
+import {
+    addBook,
+    deleteBook,
+    getAllBooks,
+    updateBook,
+} from "../services/BookService";
+import BookForm from "../components/forms/BookForm";
+import BookCard from "../components/card/BookCard";
+import { lendBook } from "../services/LendingService";
 
 const BooksPage: React.FC = () => {
-    const [books, setBooks] = useState<Book[]>([])
-    const [editingBook, setEditingBook] = useState<Book | null>(null)
-    const [titleFilter, setTitleFilter] = useState("")
-    const [genreFilter, setGenreFilter] = useState("")
-    const [isbnFilter, setIsbnFilter] = useState("")
-    const [lendingBook, setLendingBook] = useState<Book | null>(null)
-    const [nicInput, setNicInput] = useState("")
-    const [memberIdInput, setMemberIdInput] = useState("")
+    const [books, setBooks] = useState<Book[]>([]);
+    const [editingBook, setEditingBook] = useState<Book | null>(null);
+    const [titleFilter, setTitleFilter] = useState("");
+    const [genreFilter, setGenreFilter] = useState("");
+    const [isbnFilter, setIsbnFilter] = useState("");
+    const [lendingBook, setLendingBook] = useState<Book | null>(null);
+    const [nicInput, setNicInput] = useState("");
+    const [memberIdInput, setMemberIdInput] = useState("");
+    const [selectedGenre, setSelectedGenre] = useState("All");
 
     const fetchBooks = async () => {
         try {
@@ -22,48 +28,48 @@ const BooksPage: React.FC = () => {
                 title: titleFilter || undefined,
                 genre: genreFilter || undefined,
                 isbn: isbnFilter || undefined,
-            })
-            setBooks(res)
+            });
+            setBooks(res);
         } catch (err) {
-            toast.error("Failed to load books.")
+            toast.error("Failed to load books.");
         }
-    }
+    };
 
     useEffect(() => {
-        fetchBooks()
-    }, [titleFilter, genreFilter, isbnFilter])
+        fetchBooks();
+    }, [titleFilter, genreFilter, isbnFilter]);
 
     const handleSubmit = async (data: FormData) => {
         try {
             if (editingBook) {
-                await updateBook(editingBook._id, data)
-                toast.success("Book updated!")
+                await updateBook(editingBook._id, data);
+                toast.success("Book updated!");
             } else {
-                await addBook(data)
-                toast.success("Book added!")
+                await addBook(data);
+                toast.success("Book added!");
             }
-            fetchBooks()
-            setEditingBook(null)
+            fetchBooks();
+            setEditingBook(null);
         } catch (err) {
-            toast.error("Failed to save book.")
+            toast.error("Failed to save book.");
         }
-    }
+    };
 
     const handleDelete = async (id: string) => {
         try {
-            await deleteBook(id)
-            toast.success("Book deleted!")
-            fetchBooks()
+            await deleteBook(id);
+            toast.success("Book deleted!");
+            fetchBooks();
         } catch (err) {
-            toast.error("Failed to delete book.")
+            toast.error("Failed to delete book.");
         }
-    }
+    };
 
     const handleLend = async () => {
         if (!nicInput.trim() && !memberIdInput.trim()) {
-            return toast.error("Please enter either NIC or Member ID")
+            return toast.error("Please enter either NIC or Member ID");
         }
-        if (!lendingBook) return
+        if (!lendingBook) return;
 
         try {
             await lendBook(
@@ -72,16 +78,24 @@ const BooksPage: React.FC = () => {
                     memberId: memberIdInput.trim() || undefined,
                 },
                 lendingBook.isbn
-            )
-            toast.success("Book lent successfully.")
-            setLendingBook(null)
-            setNicInput("")
-            setMemberIdInput("")
-            fetchBooks()
+            );
+            toast.success("Book lent successfully.");
+            setLendingBook(null);
+            setNicInput("");
+            setMemberIdInput("");
+            fetchBooks();
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Lending failed.")
+            toast.error(err.response?.data?.message || "Lending failed.");
         }
-    }
+    };
+
+    // Extract genres from books
+    const genres = ["All", ...Array.from(new Set(books.map((b) => b.genre).filter(Boolean)))];
+
+    const filteredBooks =
+        selectedGenre === "All"
+            ? books
+            : books.filter((book) => book.genre === selectedGenre);
 
     return (
         <div className="p-4">
@@ -110,6 +124,23 @@ const BooksPage: React.FC = () => {
                     value={isbnFilter}
                     onChange={(e) => setIsbnFilter(e.target.value)}
                 />
+            </div>
+
+            {/* Genre Nav */}
+            <div className="flex flex-wrap gap-2 mb-6">
+                {genres.map((genre) => (
+                    <button
+                        key={genre}
+                        onClick={() => setSelectedGenre(genre)}
+                        className={`px-4 py-1 rounded-full text-sm border font-medium transition-all ${
+                            selectedGenre === genre
+                                ? "bg-blue-600 text-white border-blue-600"
+                                : "bg-white text-gray-700 border-gray-300 hover:bg-blue-100"
+                        }`}
+                    >
+                        {genre}
+                    </button>
+                ))}
             </div>
 
             {/* Form */}
@@ -142,9 +173,9 @@ const BooksPage: React.FC = () => {
                         <div className="flex justify-end gap-2">
                             <button
                                 onClick={() => {
-                                    setLendingBook(null)
-                                    setNicInput("")
-                                    setMemberIdInput("")
+                                    setLendingBook(null);
+                                    setNicInput("");
+                                    setMemberIdInput("");
                                 }}
                                 className="bg-gray-300 px-4 py-2 rounded"
                             >
@@ -163,18 +194,22 @@ const BooksPage: React.FC = () => {
 
             {/* Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {books.map((book) => (
-                    <BookCard
-                        key={book._id}
-                        book={book}
-                        onEdit={setEditingBook}
-                        onDelete={handleDelete}
-                        onClick={() => setLendingBook(book)}
-                    />
-                ))}
+                {filteredBooks.length > 0 ? (
+                    filteredBooks.map((book) => (
+                        <BookCard
+                            key={book._id}
+                            book={book}
+                            onEdit={setEditingBook}
+                            onDelete={handleDelete}
+                            onClick={() => setLendingBook(book)}
+                        />
+                    ))
+                ) : (
+                    <p className="text-gray-500 col-span-full">No books found in this genre.</p>
+                )}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default BooksPage
+export default BooksPage;
