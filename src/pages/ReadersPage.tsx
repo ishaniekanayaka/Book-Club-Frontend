@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react"
 import toast from "react-hot-toast"
-import type { Reader } from "../types/Reader.ts"
-import { addReader, deleteReader, getAllReaders, searchReader, updateReader } from "../services/ReaderService.ts"
-import ReaderForm from "../components/forms/ReaderForm.tsx"
-import ReadersTable from "../components/tables/ReadersTable.tsx"
+import type { Reader, ReaderFormData } from "../types/Reader"
+import { addReader, deleteReader, getAllReaders, searchReader, updateReader } from "../services/ReaderService"
+import ReaderForm from "../components/forms/ReaderForm"
+import ReadersTable from "../components/tables/ReadersTable"
 
 const ReadersPage: React.FC = () => {
     const [readers, setReaders] = useState<Reader[]>([])
@@ -19,7 +19,7 @@ const ReadersPage: React.FC = () => {
         fetchReaders()
     }, [])
 
-    const handleSubmit = async (data: FormData) => {
+    const handleSubmit = async (data: ReaderFormData) => {
         try {
             if (editingReader) {
                 await updateReader(editingReader._id, data)
@@ -40,7 +40,7 @@ const ReadersPage: React.FC = () => {
             await deleteReader(id)
             toast.success("Reader deleted!")
             fetchReaders()
-        } catch (err) {
+        } catch {
             toast.error("Delete failed")
         }
     }
@@ -50,7 +50,6 @@ const ReadersPage: React.FC = () => {
             fetchReaders()
             return
         }
-
         const result = await searchReader(searchTerm.trim())
         if (result) {
             setReaders([result])
@@ -64,7 +63,7 @@ const ReadersPage: React.FC = () => {
         <div className="p-4">
             <h1 className="text-xl font-semibold mb-4">Readers</h1>
 
-            {/* 🔍 Search Bar */}
+            {/* Search Bar */}
             <div className="flex gap-2 mb-4">
                 <input
                     type="text"
@@ -73,15 +72,12 @@ const ReadersPage: React.FC = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <button
-                    onClick={handleSearch}
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
+                <button onClick={handleSearch} className="bg-blue-600 text-white px-4 py-2 rounded">
                     Search
                 </button>
             </div>
 
-            <ReaderForm reader={editingReader!} onSubmit={handleSubmit} />
+            <ReaderForm reader={editingReader ?? undefined} onSubmit={handleSubmit} />
             <ReadersTable readers={readers} onEdit={setEditingReader} onDelete={handleDelete} />
         </div>
     )

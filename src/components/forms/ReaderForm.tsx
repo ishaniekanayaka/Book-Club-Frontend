@@ -3,7 +3,7 @@ import type { Reader, ReaderFormData } from "../../types/Reader"
 
 type Props = {
     reader?: Reader
-    onSubmit: (data: FormData) => void
+    onSubmit: (data: ReaderFormData) => void
 }
 
 const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
@@ -14,10 +14,10 @@ const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
         phone: "",
         address: "",
         dateOfBirth: "",
-        profileImage: undefined,
+        // profileImage removed
     })
 
-    // ✅ Populate form when editing
+    // Populate form when editing
     useEffect(() => {
         if (reader) {
             setFormData({
@@ -27,7 +27,7 @@ const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
                 phone: reader.phone,
                 address: reader.address,
                 dateOfBirth: reader.dateOfBirth?.substring(0, 10) || "",
-                profileImage: undefined,
+                // profileImage removed
             })
         }
     }, [reader])
@@ -37,21 +37,9 @@ const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
         setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setFormData((prev) => ({ ...prev, profileImage: e.target.files![0] }))
-        }
-    }
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        const data = new FormData()
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value !== undefined) {
-                data.append(key, value)
-            }
-        })
-        onSubmit(data)
+        onSubmit(formData) // send JSON, no FormData
     }
 
     return (
@@ -62,7 +50,7 @@ const ReaderForm: React.FC<Props> = ({ reader, onSubmit }) => {
             <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} className="w-full p-2 border rounded" />
             <textarea name="address" placeholder="Address" value={formData.address} onChange={handleChange} className="w-full p-2 border rounded" />
             <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} className="w-full p-2 border rounded" required />
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            {/* No file input */}
             <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                 {reader ? "Update Reader" : "Add Reader"}
             </button>
