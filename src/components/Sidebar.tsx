@@ -1,15 +1,17 @@
 import React from "react";
+
 import {
     Users,
     BookOpen,
     FileText,
     AlertTriangle,
-    Mail,
+
     Settings,
     LogOut,
     TrendingUp,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/useAuth.ts";
 
 interface SidebarItem {
     id: string;
@@ -18,6 +20,8 @@ interface SidebarItem {
 }
 
 const Sidebar: React.FC = () => {
+    const { user } = useAuth();  // Hook inside component
+
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -27,7 +31,9 @@ const Sidebar: React.FC = () => {
         { id: "books", label: "Book Management", icon: BookOpen },
         { id: "lending", label: "Lending Management", icon: FileText },
         { id: "overdue", label: "Overdue Management", icon: AlertTriangle },
-        { id: "notifications", label: "Notifications", icon: Mail },
+        ...(user?.role === "librarian"
+            ? [{ id: "staff", label: "Staff Management", icon: Users }]
+            : []),
         { id: "settings", label: "Settings", icon: Settings },
     ];
 
