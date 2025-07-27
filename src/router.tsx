@@ -21,7 +21,7 @@ const router = createBrowserRouter([
                 element: <AdminRoutes />,
                 children: [
                     { path: "/adminDashboard", element: <AdminDashboard /> },
-                    { path: "dashboard/readers", element: <ReadersPage /> },
+                    { path: "adminDashboard/readers", element: <ReadersPage /> },
                     { path: "dashboard/books", element: <BookPage /> },
                     { path: "dashboard/lending", element: <LendingPage /> },
                     {path: "dashboard/overdue", element: <OverduePage/>}

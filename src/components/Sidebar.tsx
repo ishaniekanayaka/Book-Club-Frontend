@@ -35,7 +35,7 @@ const Sidebar: React.FC = () => {
     const activeItem = location.pathname.split("/")[2] || "overview";
 
     const handleItemClick = (itemId: string) => {
-        navigate(`/dashboard/${itemId}`);
+        navigate(`/adminDashboard/${itemId}`);
     };
 
     const handleLogout = () => {
