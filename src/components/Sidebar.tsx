@@ -4,7 +4,6 @@ import {
     Users,
     BookOpen,
     FileText,
-    AlertTriangle,
     Settings,
     LogOut,
     TrendingUp,
@@ -57,7 +56,7 @@ const Sidebar: React.FC = () => {
         { id: "readers", label: "Reader Management", icon: Users },
         { id: "books", label: "Book Management", icon: BookOpen },
         { id: "lending", label: "Lending Management", icon: FileText },
-        { id: "overdue", label: "Overdue Management", icon: AlertTriangle },
+
         ...(user?.role === "librarian"
             ? [{ id: "staff", label: "Staff Management", icon: Users }]
             : []),
