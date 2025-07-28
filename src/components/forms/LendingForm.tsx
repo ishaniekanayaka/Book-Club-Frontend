@@ -1,63 +1,127 @@
-import { useEffect, useState } from "react";
-import {getAllLendings} from "../../services/LendingService.ts";
-import type {Lending} from "../../types/Lending.ts";
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { lendBook } from '../../services/LendingService';
+import { User, Book} from 'lucide-react';
 
+interface LendBookFormProps {
+    onSuccess: () => void;
+}
 
-const LendingPage = () => {
-    const [lendings, setLendings] = useState<Lending[]>([]);
-    const [loading, setLoading] = useState(false);
+const LendBookForm: React.FC<LendBookFormProps> = ({ onSuccess }) => {
+    const [formData, setFormData] = useState({
+        identifierType: 'memberId' as 'memberId' | 'nic',
+        identifier: '',
+        isbn: '',
+        notes: ''
+    });
+    const [isLoading, setIsLoading] = useState(false);
 
-    const fetchLendings = async () => {
-        setLoading(true);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
         try {
-            const data = await getAllLendings();
-            setLendings(data);
-        } catch (err) {
-            console.error("Failed to fetch lendings", err);
+            const identifierObj = {
+                [formData.identifierType]: formData.identifier
+            };
+
+            await lendBook(identifierObj, formData.isbn);
+            toast.success('Book lent successfully!');
+            setFormData({
+                identifierType: 'memberId',
+                identifier: '',
+                isbn: '',
+                notes: ''
+            });
+            onSuccess();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to lend book');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchLendings();
-    }, []);
-
     return (
-        <div className="p-6 space-y-6">
-            <h2 className="text-2xl font-semibold mt-10">All Lending Records</h2>
-            {loading ? (
-                <p>Loading lendings...</p>
-            ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {lendings.length === 0 ? (
-                        <p>No lending records found.</p>
-                    ) : (
-                        lendings.map((lending) => (
-                            <div key={lending._id} className="border rounded-xl p-4 shadow-md bg-white">
-                                <p>
-                                    <strong>Reader:</strong>{" "}
-                                    {typeof lending.readerId === "object"
-                                        ? lending.readerId.fullName
-                                        : lending.readerId}
-                                </p>
-                                <p>
-                                    <strong>Book:</strong>{" "}
-                                    {typeof lending.bookId === "object" ? lending.bookId.title : lending.bookId}
-                                </p>
-                                <p><strong>Lend Date:</strong> {new Date(lending.lendDate).toLocaleDateString()}</p>
-                                <p><strong>Due Date:</strong> {new Date(lending.dueDate).toLocaleDateString()}</p>
-                                <p><strong>Status:</strong> {lending.isReturned ? "Returned" : "Borrowed"}</p>
-                                {lending.returnDate && (
-                                    <p><strong>Returned At:</strong> {new Date(lending.returnDate).toLocaleDateString()}</p>
-                                )}
-                            </div>
-                        ))
-                    )}
+        <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center gap-2 mb-6">
+                <Book className="h-6 w-6 text-blue-600" />
+                <h2 className="text-xl font-semibold text-gray-800">Lend a Book</h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Reader Identification Type
+                        </label>
+                        <select
+                            value={formData.identifierType}
+                            onChange={(e) => setFormData({...formData, identifierType: e.target.value as 'memberId' | 'nic'})}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="memberId">Member ID</option>
+                            <option value="nic">NIC</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {formData.identifierType === 'memberId' ? 'Member ID' : 'NIC'}
+                        </label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formData.identifier}
+                                onChange={(e) => setFormData({...formData, identifier: e.target.value})}
+                                placeholder={`Enter ${formData.identifierType === 'memberId' ? 'Member ID' : 'NIC'}`}
+                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                    </div>
                 </div>
-            )}
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Book ISBN
+                    </label>
+                    <div className="relative">
+                        <Book className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input
+                            type="text"
+                            value={formData.isbn}
+                            onChange={(e) => setFormData({...formData, isbn: e.target.value})}
+                            placeholder="Enter book ISBN"
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Notes (Optional)
+                    </label>
+                    <textarea
+                        value={formData.notes}
+                        onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                        placeholder="Any additional notes..."
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isLoading ? 'Processing...' : 'Lend Book'}
+                </button>
+            </form>
         </div>
     );
 };
 
-export default LendingPage;
+export default LendBookForm;
