@@ -3,8 +3,12 @@ import { forgotPassword, verifyOtp, resetPassword } from "../services/authServic
 import toast from "react-hot-toast"
 import axios from "axios"
 
+/*interface ForgotPasswordProps {
+    onClose: () => void
+}*/
 interface ForgotPasswordProps {
     onClose: () => void
+    email?: string
 }
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onClose }) => {
