@@ -1,4 +1,5 @@
 export type Reader = {
+    status: string
     _id: string
     fullName: string
     nic: string
