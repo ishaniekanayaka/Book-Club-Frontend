@@ -1,38 +1,116 @@
 import React from "react";
-import type {Staff} from "../../types/Staff.ts";
+import type { Staff } from "../../types/Staff";
 
-
-interface Props {
+interface StaffTableProps {
     staffList: Staff[];
     onSelect: (staff: Staff) => void;
 }
 
-const StaffTable: React.FC<Props> = ({ staffList, onSelect }) => {
+const StaffTable: React.FC<StaffTableProps> = ({ staffList, onSelect }) => {
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString();
+    };
+
+    const getRoleBadge = (role: string) => {
+        const colors = {
+            admin: "bg-purple-100 text-purple-800",
+            staff: "bg-blue-100 text-blue-800",
+            librarian: "bg-green-100 text-green-800",
+        };
+        return colors[role as keyof typeof colors] || "bg-gray-100 text-gray-800";
+    };
+
     return (
-        <table className="min-w-full table-auto border-collapse border border-gray-300">
-            <thead>
-            <tr>
-                <th className="border border-gray-300 px-4 py-2">Member ID</th>
-                <th className="border border-gray-300 px-4 py-2">Name</th>
-                <th className="border border-gray-300 px-4 py-2">Role</th>
-                <th className="border border-gray-300 px-4 py-2">Email</th>
-            </tr>
-            </thead>
-            <tbody>
-            {staffList.map((staff) => (
-                <tr
-                    key={staff._id}
-                    className="cursor-pointer hover:bg-gray-200"
-                    onClick={() => onSelect(staff)}
-                >
-                    <td className="border border-gray-300 px-4 py-2">{staff.memberId}</td>
-                    <td className="border border-gray-300 px-4 py-2">{staff.name}</td>
-                    <td className="border border-gray-300 px-4 py-2 capitalize">{staff.role}</td>
-                    <td className="border border-gray-300 px-4 py-2">{staff.email}</td>
-                </tr>
-            ))}
-            </tbody>
-        </table>
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Staff Info
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Role
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Contact
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            NIC
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Member ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Joined Date
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                    {staffList.map((staff) => (
+                        <tr
+                            key={staff._id}
+                            onClick={() => onSelect(staff)}
+                            className="hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+                        >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0 h-10 w-10">
+                                        {staff.profileImage ? (
+                                            <img
+                                                className="h-10 w-10 rounded-full object-cover"
+                                                src={staff.profileImage}
+                                                alt={staff.name}
+                                            />
+                                        ) : (
+                                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                    <span className="text-sm font-medium text-gray-700">
+                                                        {staff.name.charAt(0).toUpperCase()}
+                                                    </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="ml-4">
+                                        <div className="text-sm font-medium text-gray-900">
+                                            {staff.name}
+                                        </div>
+                                        <div className="text-sm text-gray-500">
+                                            {staff.email}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadge(staff.role)}`}>
+                                        {staff.role.charAt(0).toUpperCase() + staff.role.slice(1)}
+                                    </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">{staff.phone}</div>
+                                <div className="text-sm text-gray-500 truncate max-w-32">
+                                    {staff.address}
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {staff.nic}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {staff.memberId || 'N/A'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formatDate(staff.createdAt)}
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+            {staffList.length === 0 && (
+                <div className="text-center py-12">
+                    <p className="text-gray-500">No staff members found</p>
+                </div>
+            )}
+        </div>
     );
 };
 

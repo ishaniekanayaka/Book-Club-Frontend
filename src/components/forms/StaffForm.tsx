@@ -1,140 +1,256 @@
-import React, { useState} from "react";
-import type {Staff} from "../../types/Staff.ts";
+import React, { useState, useRef } from "react";
+import type { Staff } from "../../types/Staff";
 
-
-interface Props {
+interface StaffFormProps {
     initialData?: Staff;
     onSubmit: (formData: FormData) => void;
     onCancel: () => void;
 }
 
-const StaffForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
-    const [name, setName] = useState(initialData?.name || "");
-    const [email, setEmail] = useState(initialData?.email || "");
-    const [role, setRole] = useState<"staff" | "librarian">(initialData?.role || "staff");
-    const [phone, setPhone] = useState(initialData?.phone || "");
-    const [address, setAddress] = useState(initialData?.address || "");
-    const [dateOfBirth, setDateOfBirth] = useState(
-        initialData?.dateOfBirth ? new Date(initialData.dateOfBirth).toISOString().slice(0, 10) : ""
+const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSubmit, onCancel }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(
+        initialData?.profileImage || null
     );
-    const [nic, setNic] = useState(initialData?.nic || "");
-    const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+
+    const [formData, setFormData] = useState({
+        name: initialData?.name || "",
+        email: initialData?.email || "",
+        password: "",
+        role: initialData?.role || "staff",
+        phone: initialData?.phone || "",
+        address: initialData?.address || "",
+        dateOfBirth: initialData?.dateOfBirth ?
+            new Date(initialData.dateOfBirth).toISOString().split('T')[0] : "",
+        nic: initialData?.nic || "",
+    });
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setPreviewImage(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("email", email);
-        formData.append("role", role);
-        if (phone) formData.append("phone", phone);
-        if (address) formData.append("address", address);
-        if (dateOfBirth) formData.append("dateOfBirth", dateOfBirth);
-        if (nic) formData.append("nic", nic);
-        if (profileImageFile) formData.append("profileImage", profileImageFile);
 
-        onSubmit(formData);
+        const submitData = new FormData();
+        submitData.append("name", formData.name);
+        submitData.append("email", formData.email);
+        if (formData.password) {
+            submitData.append("password", formData.password);
+        }
+        submitData.append("role", formData.role);
+        submitData.append("phone", formData.phone);
+        submitData.append("address", formData.address);
+        submitData.append("dateOfBirth", formData.dateOfBirth);
+        submitData.append("nic", formData.nic);
+
+        if (selectedFile) {
+            submitData.append("profileImage", selectedFile);
+        }
+
+        onSubmit(submitData);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-md p-4 border rounded shadow bg-white">
-            <div>
-                <label className="block mb-1 font-semibold">Name</label>
-                <input
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    type="text"
-                    minLength={3}
-                />
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">
+                    {initialData ? "Edit Staff" : "Add New Staff"}
+                </h2>
             </div>
 
+            {/* Profile Image */}
+            <div className="flex flex-col items-center mb-4">
+                <div className="w-20 h-20 mb-2">
+                    {previewImage ? (
+                        <img
+                            src={previewImage}
+                            alt="Preview"
+                            className="w-full h-full rounded-full object-cover border-2 border-gray-300"
+                        />
+                    ) : (
+                        <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-300">
+                            <span className="text-gray-500 text-xs">No Image</span>
+                        </div>
+                    )}
+                </div>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                />
+                <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded"
+                >
+                    Choose Image
+                </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                {/* Name */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Name *
+                    </label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                {/* Email */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email *
+                    </label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        disabled={!!initialData}
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    />
+                </div>
+            </div>
+
+            {/* Password */}
             {!initialData && (
                 <div>
-                    <label className="block mb-1 font-semibold">Email</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Password *
+                    </label>
                     <input
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full border border-gray-300 rounded px-3 py-2"
-                        type="email"
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required={!initialData}
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
             )}
 
-            <div>
-                <label className="block mb-1 font-semibold">Role</label>
-                <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as "staff" | "librarian")}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    disabled={!!initialData} // disable changing role on update for simplicity
-                >
-                    <option value="staff">Staff</option>
-                    <option value="librarian">Librarian</option>
-                </select>
+            <div className="grid grid-cols-2 gap-4">
+                {/* Role */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Role *
+                    </label>
+                    <select
+                        name="role"
+                        value={formData.role}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="staff">Staff</option>
+                        <option value="librarian">Librarian</option>
+                    </select>
+                </div>
+
+                {/* Phone */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone *
+                    </label>
+                    <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+                {/* NIC */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        NIC *
+                    </label>
+                    <input
+                        type="text"
+                        name="nic"
+                        value={formData.nic}
+                        onChange={handleInputChange}
+                        required
+                        disabled={!!initialData}
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    />
+                </div>
+
+                {/* Date of Birth */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date of Birth *
+                    </label>
+                    <input
+                        type="date"
+                        name="dateOfBirth"
+                        value={formData.dateOfBirth}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+            </div>
+
+            {/* Address */}
             <div>
-                <label className="block mb-1 font-semibold">Phone</label>
-                <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    type="tel"
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address *
+                </label>
+                <textarea
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    required
+                    rows={3}
+                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
 
-            <div>
-                <label className="block mb-1 font-semibold">Address</label>
-                <input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    type="text"
-                />
-            </div>
-
-            <div>
-                <label className="block mb-1 font-semibold">Date of Birth</label>
-                <input
-                    value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    type="date"
-                />
-            </div>
-
-            <div>
-                <label className="block mb-1 font-semibold">NIC</label>
-                <input
-                    value={nic}
-                    onChange={(e) => setNic(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    type="text"
-                />
-            </div>
-
-            <div>
-                <label className="block mb-1 font-semibold">Profile Image</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setProfileImageFile(e.target.files ? e.target.files[0] : null)}
-                />
-            </div>
-
-            <div className="flex gap-2">
+            {/* Buttons */}
+            <div className="flex gap-2 pt-4">
                 <button
                     type="submit"
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
                 >
                     {initialData ? "Update Staff" : "Add Staff"}
                 </button>
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-500"
+                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors"
                 >
                     Cancel
                 </button>
