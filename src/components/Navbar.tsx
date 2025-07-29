@@ -138,7 +138,11 @@ const Navbar = () => {
 
                                     {/* Profile Dropdown */}
                                     {showProfileMenu && (
-                                        <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 py-2 z-50 animate-slideDown">
+                                        <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 py-2 z-50"
+                                             style={{
+                                                 animation: 'slideDown 0.2s ease-out'
+                                             }}
+                                        >
                                             <div className="px-4 py-3 border-b border-gray-100">
                                                 <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                                                 <p className="text-xs text-gray-500">{user?.email}</p>
@@ -315,24 +319,6 @@ const Navbar = () => {
                     onClick={() => setShowProfileMenu(false)}
                 ></div>
             )}
-
-            {/* Custom Styles */}
-            <style jsx>{`
-                @keyframes slideDown {
-                    from {
-                        opacity: 0;
-                        transform: translateY(-10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                .animate-slideDown {
-                    animation: slideDown 0.2s ease-out;
-                }
-            `}</style>
         </nav>
     )
 }
