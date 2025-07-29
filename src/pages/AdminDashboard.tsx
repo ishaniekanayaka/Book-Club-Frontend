@@ -3,6 +3,7 @@ import DashboardStats from "../components/dashboard/DashboardStats";
 import DashboardCharts from "../components/dashboard/DashboardCharts";
 import { getDashboardSummary } from "../services/dashboardService";
 import { MdPersonAdd, MdBook, MdAssignment } from "react-icons/md";
+import {useNavigate} from "react-router-dom";
 
 const AdminDashboard: React.FC = () => {
     const [stats, setStats] = useState({
@@ -13,6 +14,7 @@ const AdminDashboard: React.FC = () => {
         activeLendings: 0,
         overdueBooks: 0,
     });
+    const navigate = useNavigate();
 
     // Chart data structure
     const [chartData, setChartData] = useState<
@@ -67,18 +69,30 @@ const AdminDashboard: React.FC = () => {
                         Quick Actions
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150">
+                        <button
+                            onClick={() => navigate("/adminDashboard/books")}
+                            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150"
+                        >
                             <MdBook className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
                             <p className="text-sm font-medium text-gray-900">Add Book</p>
                         </button>
-                        <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150">
+
+                        <button
+                            onClick={() => navigate("/adminDashboard/readers")}
+                            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150"
+                        >
                             <MdPersonAdd className="w-8 h-8 text-green-600 mx-auto mb-2" />
                             <p className="text-sm font-medium text-gray-900">Add Reader</p>
                         </button>
-                        <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150">
+
+                        <button
+                            onClick={() => navigate("/adminDashboard/lending")}
+                            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150"
+                        >
                             <MdAssignment className="w-8 h-8 text-purple-600 mx-auto mb-2" />
                             <p className="text-sm font-medium text-gray-900">Create Lending</p>
                         </button>
+
                     </div>
                 </div>
             </div>
