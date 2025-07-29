@@ -1,93 +1,44 @@
-import React from "react"
-import { MdPeople, MdInventory, MdShoppingCart, MdAttachMoney } from "react-icons/md"
+import { FaBook, FaUser, FaUserTie, FaClipboardList, FaExclamationTriangle } from "react-icons/fa";
 
-interface StatCardProps {
-    title: string
-    value: string | number
-    icon: React.ReactNode
-    change?: {
-        value: number
-        type: "increase" | "decrease"
-    }
-    color: string
-}
+type Props = {
+    totalBooks: number;
+    totalReaders: number;
+    totalStaff: number;
+    totalLibrarians: number;
+    activeLendings: number;
+    overdueBooks: number;
+};
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, change, color }) => {
+const DashboardStats = ({
+                            totalBooks,
+                            totalReaders,
+                            totalStaff,
+                            totalLibrarians,
+                            activeLendings,
+                            overdueBooks,
+                        }: Props) => {
+    const cards = [
+        { label: "Total Books", value: totalBooks, icon: <FaBook className="text-indigo-500" /> },
+        { label: "Total Readers", value: totalReaders, icon: <FaUser className="text-green-500" /> },
+        { label: "Total Staff", value: totalStaff, icon: <FaUserTie className="text-yellow-500" /> },
+        { label: "Total Librarians", value: totalLibrarians, icon: <FaUserTie className="text-purple-500" /> },
+        { label: "Active Lendings", value: activeLendings, icon: <FaClipboardList className="text-blue-500" /> },
+        { label: "Overdue Books", value: overdueBooks, icon: <FaExclamationTriangle className="text-red-500" /> },
+    ];
+
     return (
-        <div className='bg-white rounded-lg shadow-md p-6'>
-            <div className='flex items-center justify-between'>
-                <div>
-                    <p className='text-sm font-medium text-gray-600'>{title}</p>
-                    <p className='text-3xl font-bold text-gray-900 mt-2'>{value}</p>
-                    {change && (
-                        <div className='flex items-center mt-2'>
-              <span className={`text-sm font-medium ${change.type === "increase" ? "text-green-600" : "text-red-600"}`}>
-                {change.type === "increase" ? "+" : "-"}
-                  {Math.abs(change.value)}%
-              </span>
-                            <span className='text-sm text-gray-500 ml-1'>from last month</span>
-                        </div>
-                    )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {cards.map((card, index) => (
+                <div key={index} className="bg-white shadow rounded-lg p-5 flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-gray-500">{card.label}</p>
+                        <p className="text-2xl font-semibold text-gray-800">{card.value}</p>
+                    </div>
+                    <div className="text-3xl">{card.icon}</div>
                 </div>
-                <div className={`p-3 rounded-full ${color}`}>{icon}</div>
-            </div>
-        </div>
-    )
-}
-
-interface DashboardStatsProps {
-    totalCustomers: number
-    totalItems: number
-    totalOrders: number
-    totalRevenue: number
-}
-
-const DashboardStats: React.FC<DashboardStatsProps> = ({ totalCustomers, totalItems, totalOrders, totalRevenue }) => {
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-        }).format(amount)
-    }
-
-    const stats = [
-        {
-            title: "Total Customers",
-            value: totalCustomers,
-            icon: <MdPeople className='w-6 h-6 text-blue-600' />,
-            change: { value: 12, type: "increase" as const },
-            color: "bg-blue-100",
-        },
-        {
-            title: "Total Items",
-            value: totalItems,
-            icon: <MdInventory className='w-6 h-6 text-green-600' />,
-            change: { value: 8, type: "increase" as const },
-            color: "bg-green-100",
-        },
-        {
-            title: "Total Orders",
-            value: totalOrders,
-            icon: <MdShoppingCart className='w-6 h-6 text-purple-600' />,
-            change: { value: 5, type: "decrease" as const },
-            color: "bg-purple-100",
-        },
-        {
-            title: "Total Revenue",
-            value: formatCurrency(totalRevenue),
-            icon: <MdAttachMoney className='w-6 h-6 text-yellow-600' />,
-            change: { value: 15, type: "increase" as const },
-            color: "bg-yellow-100",
-        },
-    ]
-
-    return (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
-            {stats.map((stat, index) => (
-                <StatCard key={index} {...stat} />
             ))}
         </div>
-    )
-}
+    );
+};
 
-export default DashboardStats
+export default DashboardStats;
