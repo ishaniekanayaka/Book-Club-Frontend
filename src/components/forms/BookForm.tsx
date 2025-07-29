@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { BookOpen, User, Tag, Calendar, Hash, FileText, Image, Plus } from "lucide-react"
 import type { BookFormData, Book } from "../../types/Book"
+import Swal from "sweetalert2"
 
 type Props = {
     book?: Book
@@ -53,6 +54,15 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
         setErrors({})
     }, [book])
 
+    const showValidationError = (message: string) => {
+        Swal.fire({
+            icon: "error",
+            title: "Validation Error",
+            text: message,
+            confirmButtonColor: "#3b82f6",
+        })
+    }
+
     const validateForm = (): boolean => {
         const newErrors: Partial<Record<keyof BookFormData, string>> = {}
 
@@ -78,7 +88,14 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
         }
 
         setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
+
+        if (Object.keys(newErrors).length > 0) {
+            const firstError = Object.values(newErrors)[0]
+            showValidationError(firstError)
+            return false
+        }
+
+        return true
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -107,12 +124,14 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 setErrors(prev => ({ ...prev, backCover: "Please select a valid image file" }))
+                showValidationError("Please select a valid image file (JPG/PNG)")
                 return
             }
 
             // Validate file size (5MB limit)
             if (file.size > 5 * 1024 * 1024) {
                 setErrors(prev => ({ ...prev, backCover: "Image size must be less than 5MB" }))
+                showValidationError("Image size must be less than 5MB")
                 return
             }
 
@@ -156,25 +175,51 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
     }
 
     const handleReset = () => {
-        setFormData({
-            title: "",
-            author: "",
-            genre: "",
-            description: "",
-            publishedDate: "",
-            copiesAvailable: 1,
-            backCover: undefined,
+        Swal.fire({
+            title: "Reset Form?",
+            text: "Are you sure you want to clear all fields?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3b82f6",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, reset",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setFormData({
+                    title: "",
+                    author: "",
+                    genre: "",
+                    description: "",
+                    publishedDate: "",
+                    copiesAvailable: 1,
+                    backCover: undefined,
+                })
+                setImagePreview(null)
+                setErrors({})
+            }
         })
-        setImagePreview(null)
-        setErrors({})
     }
 
     const removeImage = () => {
-        setFormData(prev => ({ ...prev, backCover: undefined }))
-        setImagePreview(null)
-        if (errors.backCover) {
-            setErrors(prev => ({ ...prev, backCover: undefined }))
-        }
+        Swal.fire({
+            title: "Remove Image?",
+            text: "Are you sure you want to remove the book cover image?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3b82f6",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, remove",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setFormData(prev => ({ ...prev, backCover: undefined }))
+                setImagePreview(null)
+                if (errors.backCover) {
+                    setErrors(prev => ({ ...prev, backCover: undefined }))
+                }
+            }
+        })
     }
 
     // Common genres for quick selection
@@ -203,7 +248,7 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
                 )}
             </div>
 
-            <div onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Title and Author Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -422,8 +467,7 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
                     <button
-                        type="button"
-                        onClick={handleSubmit}
+                        type="submit"
                         disabled={isLoading}
                         className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     >
@@ -462,7 +506,7 @@ const BookForm: React.FC<Props> = ({ book, onSubmit, onCancel, isLoading = false
                         </button>
                     )}
                 </div>
-            </div>
+            </form>
         </div>
     )
 }
